@@ -9,4 +9,6 @@ Here are all of my projects:
 
 [j22-episode-chooser](https://github.com/jbmagination/j22-episode-chooser)
 
+[WUWS](https://jbmagination.github.io/wuws)
+
 [jbmagination.github.io](https://jbmagination.github.io)
