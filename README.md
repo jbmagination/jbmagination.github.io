@@ -12,3 +12,7 @@ Here are all of my projects:
 [WUWS](https://jbmagination.github.io/wuws)
 
 [jbmagination.github.io](https://jbmagination.github.io)
+
+[Watchdog Stats](https://jbmagination.github.io/watchdog)
+
+[Revised BetterDiscord Website](https://jbmagination.github.io/betterdiscordwebsite)
