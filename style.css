@@ -1,0 +1,20 @@
+h1 {
+    color: rgb(66, 179, 244);
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+body {
+    padding: 15px;
+}
+td {
+    padding-right: 15px;
+}
+
+table {
+    text-align: center;
+    center: center;
+}
