@@ -14,6 +14,8 @@ ill probably revise this readme soon
 * The files `.nojekyll` and `_config.yml` are used to help GitHub Pages show the `brave-rewards-verification.txt` file, and for Brave Rewards to recognize it.
 * The file `style.css` actually makes the site look good. Woah.
 * The file `index.html` is what you see when you visit https://jbmagination.com!
+* The file `CNAME` allows you to be able to see the website at https://jbmagination.com. Othwerwise, you'd see it at https://jbmagination.github.io, which isn't as cool.
+* The file `README.md` is what you're seeing right now. It won't appear this way on the website, though, because of `.nojekyll`.
 
 ## Credits
 [@sudocode1](https://github.com/sudocode1) (roux) - helping make the site look better
