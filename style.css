@@ -22,6 +22,7 @@ table {
 .everything {
   background-color: black;
   padding: 50px;
+  border-radius: 25px;
 }
 
 .everything h2, p {
