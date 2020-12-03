@@ -27,3 +27,8 @@ table {
 .everything h2, p {
   color: white;
 }
+
+span {
+    text-decoration:underline;
+    text-decoration-style: dotted;
+}
