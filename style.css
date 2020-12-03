@@ -57,3 +57,12 @@ table {
   visibility: visible;
   opacity: 1;
 }
+
+.everything {
+  background-color: black;
+  padding: 50px;
+}
+
+.everything h2, p {
+  color: white;
+}
