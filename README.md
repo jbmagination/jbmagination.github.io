@@ -8,9 +8,9 @@ ill probably revise this readme soon
 ## Site Directory
 
 .well-known</br>
-()brave-rewards-verification.txt</br>
+└ brave-rewards-verification.txt</br>
 background</br>
-()index.html</br>
+└ index.html</br>
 .nojekyll</br>
 CNAME</br>
 index.html</br>
