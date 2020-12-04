@@ -1,9 +1,5 @@
 # Website
-my website looks kinda cool doesn't it
-
-ok cool
-
-ill probably revise this readme soon
+https://jbmagination.com
 
 ## Site Directory
 
