@@ -14,6 +14,7 @@ style.css</br>
 html5shiv.js</br>
 keybase.txt</br>
 README.md</br>
+\_config.yml</br>
 * Under the `.well-known` folder is my Brave Rewards verification. This means if you visit my website, you can pay me BAT if you use the Brave Browser.
 * Under the `background` folder is a file that renders a green gradient background. I use this in my streams!
 * The file `keybase.txt` is used to verify my Keybase account. Currently, it doesn't work for some reason-- I'll get it fixed soon!
