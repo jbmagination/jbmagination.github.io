@@ -25,7 +25,11 @@ table {
   border-radius: 25px;
 }
 
-.everything h2, p {
+.everything h2 {
+  color: white;
+}
+
+.everything p {
   color: white;
 }
 
