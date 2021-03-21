@@ -7,6 +7,8 @@ https://jbmagination.com
 └ brave-rewards-verification.txt</br>
 background</br>
 └ index.html</br>
+dms</br>
+└ index.html</br>
 .nojekyll</br>
 CNAME</br>
 index.html</br>
@@ -21,6 +23,7 @@ humans.txt</br>
 
 * Under the `.well-known` folder is my Brave Rewards verification. This means if you visit my website, you can pay me BAT if you use the Brave Browser.
 * Under the `background` folder is a file that renders a green gradient background. I use this in my streams!
+* Under the `dms` folder is a file, which you can visit at `https://jbmagination.com/dms`! This is in my Discord custom status.
 * The file `keybase.txt` is used to verify my Keybase account. Currently, it doesn't work for some reason-- I'll get it fixed soon!
 * The file `html5shiv.js` is actually the file `html5shiv-printshiv.min.js`. It allows the HTML5 and CSS that runs in the browser to work on older browsers, such as Internet Explorer.
 * The files `.nojekyll` and `_config.yml` are used to help GitHub Pages show the `brave-rewards-verification.txt` file, and for Brave Rewards to recognize it.
