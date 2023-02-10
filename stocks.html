@@ -31,137 +31,205 @@
         </style>
     </head>
     <body>
-        <div id="error" class="no-game"></div>
-        <br>
-        <div>
-            <input type="text" placeholder="Stock symbol/ticker" id="stock">
-            <button type="button" id="checkStock" onclick="checkStock()">Check stock</button>
+        <div id="stock-input">
+            <noscript>JavaScript is required</noscript>
+            <div id="stock"></div>
         </div>
         <br>
         <div id="stock-details">
             <div id="name"></div>
+            <div id="error" class="no-game"></div>
             <div id="exchange-name"></div>
             <div id="share-minimum"></div>
+            <div id="share-minimum-previous"></div>
+            <div id="market-cap"></div>
             <div id="links"></div>
         </div>
         <br>
-        <div id="trending"></div>
-        <br>
-        <div id="notice">I couldn't figure out how to get the market cap - for now, you'll have to visit Yahoo! Finance or Google Finance to check that out.</div>
+        <div id="smg-trending"></div>
+        <div id="other-trending"></div>
         <script>
-            document.getElementById('stock').addEventListener("keypress", (event) => {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    document.getElementById("checkStock").click();
-                }
-            })
-
-            async function checkStock() {
-                var stockText = document.getElementById('stock').value
-                getStock(stockText)
-            }
-
             async function getStock(stock) {
-                let quoteData;
-                let searchData;
-                let chartData;
-                let stockName;
-                stockName = "No long name found"
+                let continueProgressing;
+                continueProgressing = true;
+
+                document.getElementById('name').innerHTML = ""
+                document.getElementById('error').innerHTML = ""
+                document.getElementById('exchange-name').innerHTML = ""
+                document.getElementById('share-minimum').innerHTML = ""
+                document.getElementById('share-minimum-previous').innerHTML = ""
+                document.getElementById('market-cap').innerHTML = ""
+                document.getElementById('links').innerHTML = ""
+
+                let data;
 
                 if (stock.startsWith('$')) stock = stock.substring(1)
-                if (stock.startsWith('^')) {
-                    document.getElementById('error').innerHTML = "Error: Cannot check non-equities"
-                    return
-                }
-                fetch(`https://corsanywhere.herokuapp.com/https://query2.finance.yahoo.com/v7/finance/quote?symbols=${stock}&fields=gmtOffSetMilliseconds`, { 
+                fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v7/finance/options/${stock}`, { 
                     headers: { 'X-Requested-With': 'XMLHttpRequest' } 
                 })
                 .then((response) => response.json())
-                .then((response) => { quoteData = response.quoteResponse.result[0] })
+                .then((response) => { data = response.optionChain.result[0]; })
                 .then((response) => {
-                    if (quoteData == undefined) {
+                    if (data == undefined) {
+                        continueProgressing = false;
                         document.getElementById('error').innerHTML = "Error: Stock not found"
+                        document.getElementById('name').innerHTML = ""
+                        document.getElementById('exchange-name').innerHTML = ""
+                        document.getElementById('share-minimum').innerHTML = ""
+                        document.getElementById('share-minimum-previous').innerHTML = ""
+                        document.getElementById('market-cap').innerHTML = ""
+                        document.getElementById('links').innerHTML = ""
                         return
                     }
-                    if (!(quoteData.quoteType == "EQUITY")) {
+                    if (!(data.quote.quoteType == "EQUITY")) {
+                        continueProgressing = false;
+                        console.error(`${data.quote.quoteType} found for stock ${data.quote.symbol}, expected EQUITY`)
                         document.getElementById('error').innerHTML = "Error: Cannot check non-equities"
+                        document.getElementById('name').innerHTML = ""
+                        document.getElementById('exchange-name').innerHTML = ""
+                        document.getElementById('share-minimum').innerHTML = ""
+                        document.getElementById('share-minimum-previous').innerHTML = ""
+                        document.getElementById('market-cap').innerHTML = ""
+                        document.getElementById('links').innerHTML = ""
                         return
                     }
                     document.getElementById('error').innerHTML = ""
+                })
+                .then(() => {
+                    if (data.quote.longName) document.getElementById('name').innerHTML = `${data.quote.longName} (${data.quote.symbol})`;
+                    else document.getElementById('name').innerHTML = `${data.quote.symbol}`
                     
+                    let gExtra;
+                    if (data.quote.fullExchangeName.startsWith('Nasdaq')) gExtra = ":NASDAQ"
+                    if (data.quote.fullExchangeName.startsWith('NYSE')) gExtra = ":NYSE"
+                    
+                    if (continueProgressing) {
+                        if ((data.quote.fullExchangeName.startsWith("Nasdaq") || (data.quote.fullExchangeName.startsWith("NYSE")))) {
+                            document.getElementById('exchange-name').classList.remove('no-game')
+                            document.getElementById('exchange-name').classList.add('game')
+                            document.getElementById('exchange-name').innerHTML = `✓ ${data.quote.fullExchangeName} (^${data.quote.exchange})`
+                            document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a> | <a href="http://g.co/finance/${stock}${gExtra}">Google Finance</a>`
+                        } else {
+                            document.getElementById('exchange-name').classList.add('no-game')
+                            document.getElementById('exchange-name').classList.remove('game')
+                            document.getElementById('exchange-name').innerHTML = `🚫 ${data.quote.fullExchangeName} (^${data.quote.exchange})`
+                            document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a>`
+                        }
 
-                    fetch(`https://corsanywhere.herokuapp.com/https://query2.finance.yahoo.com/v1/finance/search?q=${stock}&lang=en-US&region=US&quotesCount=1&newsCount=0&listsCount=0&enableFuzzyQuery=false&quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_quote_single_token_query&newsQueryId=news_cie_vespa&enableCb=true&enableNavLinks=false&enableEnhancedTrivialQuery=false&enableResearchReports=false&enableCulturalAssets=false&enableLogoUrl=false&researchReportsCount=0`, {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then((response) => response.json())
-                    .then((response) => { console.log(response.quotes); response.quotes.forEach((quote) => { if ((quote.symbol == stock) || (quote.symbol == `${stock}-USD`)) searchData = quote }) })
-                    .then(() => {
-                        fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${stock}`, {
-                            headers: { 'X-Requested-With': 'XMLHttpRequest'}
-                        })
-                        .then((response) => response.json())
-                        .then((response) => { chartData = response.chart.result[0].meta })
-                        .then(() => {
-                            if (searchData && searchData.longname) stockName = searchData.longname;
-                            document.getElementById('name').innerHTML = `${stockName} ($${quoteData.symbol})`
-                            
-                            let gExtra;
-                            if (quoteData.fullExchangeName.startsWith('Nasdaq')) gExtra = ":NASDAQ"
-                            if (quoteData.fullExchangeName.startsWith('NYSE')) gExtra = ":NYSE"
+                        if ((data.quote.regularMarketPrice > 3)) {
+                            document.getElementById('share-minimum').classList.remove('no-game')
+                            document.getElementById('share-minimum').classList.add('game')
+                            document.getElementById('share-minimum').innerHTML = `✓ ${data.quote.regularMarketPrice} per share today`
+                        } else {
+                            document.getElementById('share-minimum').classList.add('no-game')
+                            document.getElementById('share-minimum').classList.remove('game')
+                            document.getElementById('share-minimum').innerHTML = `🚫 ${data.quote.regularMarketPrice} per share today`
+                        }
 
-                            if ((quoteData.fullExchangeName.startsWith("Nasdaq")) || (quoteData.fullExchangeName.startsWith("NYSE"))) {
-                                document.getElementById('exchange-name').classList.remove('no-game')
-                                document.getElementById('exchange-name').classList.add('game')
-                                document.getElementById('exchange-name').innerHTML = `✓ ${quoteData.fullExchangeName} ($^${searchData.exchange})`
-                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a> | <a href="http://g.co/finance/${stock}${gExtra}">Google Finance</a>`
+                        if ((data.quote.regularMarketPreviousClose > 3)) {
+                            document.getElementById('share-minimum-previous').classList.remove('no-game')
+                            document.getElementById('share-minimum-previous').classList.add('game')
+                            document.getElementById('share-minimum-previous').innerHTML = `✓ ${data.quote.regularMarketPreviousClose} per share previous close`
+                        } else {
+                            document.getElementById('share-minimum-previous').classList.add('no-game')
+                            document.getElementById('share-minimum-previous').classList.remove('game')
+                            document.getElementById('share-minimum-previous').innerHTML = `🚫 ${data.quote.regularMarketPreviousClose} per share previous close`
+                        }
+
+                        if (data.quote.marketCap) {
+                            if (continueProgressing && (data.quote.marketCap > 25000000)) {
+                                document.getElementById('market-cap').classList.remove('no-game')
+                                document.getElementById('market-cap').classList.add('game')
+                                document.getElementById('market-cap').innerHTML = `✓ ${data.quote.marketCap.toLocaleString('en-US')} market cap`
                             } else {
-                                document.getElementById('exchange-name').classList.add('no-game')
-                                document.getElementById('exchange-name').classList.remove('game')
-                                document.getElementById('exchange-name').innerHTML = `🚫 ${quoteData.fullExchangeName} ($^${searchData.exchange})`
-                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a>`
+                                document.getElementById('market-cap').classList.add('no-game')
+                                document.getElementById('market-cap').classList.remove('game')
+                                document.getElementById('market-cap').innerHTML = `🚫 ${data.quote.marketCap.toLocaleString('en-US')} market cap`
                             }
-
-                            if ((chartData.previousClose > 3) && (chartData.regularMarketPrice > 3)) {
-                                document.getElementById('share-minimum').classList.remove('no-game')
-                                document.getElementById('share-minimum').classList.add('game')
-                                document.getElementById('share-minimum').innerHTML = `✓ $${chartData.regularMarketPrice} per share today / $${chartData.previousClose} per share previous close`
-                            } else {
-                                document.getElementById('share-minimum').classList.add('no-game')
-                                document.getElementById('share-minimum').classList.remove('game')
-                                document.getElementById('share-minimum').innerHTML = `🚫 $${chartData.regularMarketPrice} per share today / $${chartData.previousClose} per share previous close`
-                            }
-                        })
-                    })
+                        }
+                    }
+                })
+                .catch((error) => {
+                    document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
+                    console.error(error)
                 })
             }
 
-            fetch('https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v1/finance/trending/US?count=100&useQuotes=true', { 
+            // Trending SMG-allowed stocks
+            fetch('https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v1/finance/trending/US?count=20&useQuotes=true', { 
                 headers: { 'X-Requested-With': 'XMLHttpRequest' } 
             })
             .then((response) => response.json())
             .then((response) => { 
                 var data = response.finance.result[0].quotes; 
+                var allStocks = [];
                 var stocks = [];
+                var otherStocks = [];
                 let trendingProcessContinue;
                 trendingProcessContinue = true;
+
                 data.forEach((stock, index) => { 
-                    if (trendingProcessContinue && ((stock.fullExchangeName.startsWith("Nasdaq")) || (stock.fullExchangeName.startsWith("NYSE")))) {
-                        stocks.push(stock.symbol)
-                        if (stocks.length == 10) trendingProcessContinue = false
-                    }
-                })
-                stocks.forEach((stock, index) => {
-                    if (index == 0) {
-                        document.getElementById('trending').innerHTML = "Trending NASDAQ/NYSE stocks in the US: "
-                    } else {
-                        document.getElementById('trending').innerHTML = document.getElementById('trending').innerHTML + ' | '
-                    }
-
-                    document.getElementById('trending').innerHTML = document.getElementById('trending').innerHTML + `<a href="javascript:getStock('${stock}')">$${stock}</a>`
+                    if (((stock.fullExchangeName.startsWith("Nasdaq")) || (stock.fullExchangeName.startsWith("NYSE")))) allStocks.push(stock.symbol)
                 })
 
-                var stockToGet = stocks[Math.floor(Math.random()*stocks.length)];
-                getStock(stockToGet)
+                allStocks.forEach((stock, index) => {
+                    if (trendingProcessContinue) {
+                        fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v7/finance/options/${stock}`, { 
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+                        })
+                        .then((response) => response.json())
+                        .then((response) => { data = response.optionChain.result[0] })
+                        .then(() => { 
+                            if (trendingProcessContinue && ((data.quote.fullExchangeName.startsWith("Nasdaq")) || (data.quote.fullExchangeName.startsWith("NYSE"))) && (data.quote.regularMarketPreviousClose > 3) && (data.quote.regularMarketPrice > 3) && (data.quote.marketCap > 25000000)) {
+                                stocks.push(stock)
+                                if ((stocks.length == 10) || (index == allStocks.length - 1)) {
+                                    trendingProcessContinue = false
+
+                                    stocks.forEach((stock, index) => {
+                                        if (index == 0) {
+                                            document.getElementById('smg-trending').innerHTML = "Trending SMG-allowed stocks in the US: "
+                                        } else {
+                                            document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + ' | '
+                                        }
+
+                                        document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
+                                    })
+
+                                    otherStocks.forEach((stock, index) => {
+                                        if (index == 0) {
+                                            document.getElementById('other-trending').innerHTML = "Other trending (not SMG-allowed) stocks in the US: "
+                                        } else {
+                                            document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + ' | '
+                                        }
+
+                                        document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
+                                    })
+
+                                    var stockToGet = stocks[Math.floor(Math.random()*stocks.length)];
+                                    getStock(stockToGet)
+
+                                    document.getElementById('stock-input').innerHTML = `<input type="text" placeholder="Stock symbol/ticker" id="stock"><button type="button" id="checkStock" onclick="getStock(document.getElementById('stock').value)">Check stock</button>`
+                                    document.getElementById('stock').addEventListener("keypress", (event) => {
+                                        if (event.key === "Enter") {
+                                            event.preventDefault();
+                                            document.getElementById("checkStock").click();
+                                        }
+                                    })
+                                }
+                            } else {
+                                if (otherStocks.length < 10) otherStocks.push(stock)
+                            }
+                        })                        
+                        .catch((error) => {
+                            document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
+                            console.error(error)
+                        })
+                    }
+                })
+            })
+            .catch((error) => {
+                document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
+                console.error(error)
             })
         </script>
     </body>
