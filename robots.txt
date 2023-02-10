@@ -4,5 +4,3 @@ Disallow: /background
 Disallow: /background/
 Disallow: /.well-known/
 Disallow: /.well-known
-
-Sitemap: https://jbmagination.com/sitemap.xml
