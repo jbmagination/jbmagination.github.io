@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Stock Market Game helper</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        :root {
+            color-scheme: light dark;
+        }
+        * {
+            font-family: Helvetica;
+        }
+        .no-game {
+            color: red;
+        }
+        .game {
+            color: green;
+        }
+        @media (prefers-color-scheme: dark) {
+            .game {
+                color: lime;
+            }
+        }
+        body {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="error" class="no-game"></div>
+        <br>
+        <div>
+            <input type="text" placeholder="Stock symbol/ticker" id="stock">
+            <button type="button" id="checkStock" onclick="checkStock()">Check stock</button>
+        </div>
+        <br>
+        <div id="stock-details">
+            <div id="name"></div>
+            <div id="exchange-name"></div>
+            <div id="share-minimum"></div>
+            <div id="links"></div>
+        </div>
+        <br>
+        <div id="trending"></div>
+        <br>
+        <div id="notice">I couldn't figure out how to get the market cap - for now, you'll have to visit Yahoo! Finance or Google Finance to check that out.</div>
+        <script>
+            document.getElementById('stock').addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("checkStock").click();
+                }
+            })
+
+            async function checkStock() {
+                var stockText = document.getElementById('stock').value
+                getStock(stockText)
+            }
+
+            async function getStock(stock) {
+                let quoteData;
+                let searchData;
+                let chartData;
+                let stockName;
+                stockName = "No long name found"
+
+                if (stock.startsWith('$')) stock = stock.substring(1)
+                if (stock.startsWith('^')) {
+                    document.getElementById('error').innerHTML = "Error: Cannot check non-equities"
+                    return
+                }
+                fetch(`https://corsanywhere.herokuapp.com/https://query2.finance.yahoo.com/v7/finance/quote?symbols=${stock}&fields=gmtOffSetMilliseconds`, { 
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+                })
+                .then((response) => response.json())
+                .then((response) => { quoteData = response.quoteResponse.result[0] })
+                .then((response) => {
+                    if (quoteData == undefined) {
+                        document.getElementById('error').innerHTML = "Error: Stock not found"
+                        return
+                    }
+                    if (!(quoteData.quoteType == "EQUITY")) {
+                        document.getElementById('error').innerHTML = "Error: Cannot check non-equities"
+                        return
+                    }
+                    document.getElementById('error').innerHTML = ""
+                    
+
+                    fetch(`https://corsanywhere.herokuapp.com/https://query2.finance.yahoo.com/v1/finance/search?q=${stock}&lang=en-US&region=US&quotesCount=1&newsCount=0&listsCount=0&enableFuzzyQuery=false&quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_quote_single_token_query&newsQueryId=news_cie_vespa&enableCb=true&enableNavLinks=false&enableEnhancedTrivialQuery=false&enableResearchReports=false&enableCulturalAssets=false&enableLogoUrl=false&researchReportsCount=0`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then((response) => response.json())
+                    .then((response) => { console.log(response.quotes); response.quotes.forEach((quote) => { if ((quote.symbol == stock) || (quote.symbol == `${stock}-USD`)) searchData = quote }) })
+                    .then(() => {
+                        fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${stock}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest'}
+                        })
+                        .then((response) => response.json())
+                        .then((response) => { chartData = response.chart.result[0].meta })
+                        .then(() => {
+                            if (searchData && searchData.longname) stockName = searchData.longname;
+                            document.getElementById('name').innerHTML = `${stockName} ($${quoteData.symbol})`
+                            
+                            let gExtra;
+                            if (quoteData.fullExchangeName.startsWith('Nasdaq')) gExtra = ":NASDAQ"
+                            if (quoteData.fullExchangeName.startsWith('NYSE')) gExtra = ":NYSE"
+
+                            if ((quoteData.fullExchangeName.startsWith("Nasdaq")) || (quoteData.fullExchangeName.startsWith("NYSE"))) {
+                                document.getElementById('exchange-name').classList.remove('no-game')
+                                document.getElementById('exchange-name').classList.add('game')
+                                document.getElementById('exchange-name').innerHTML = `✓ ${quoteData.fullExchangeName} ($^${searchData.exchange})`
+                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a> | <a href="http://g.co/finance/${stock}${gExtra}">Google Finance</a>`
+                            } else {
+                                document.getElementById('exchange-name').classList.add('no-game')
+                                document.getElementById('exchange-name').classList.remove('game')
+                                document.getElementById('exchange-name').innerHTML = `🚫 ${quoteData.fullExchangeName} ($^${searchData.exchange})`
+                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a>`
+                            }
+
+                            if ((chartData.previousClose > 3) && (chartData.regularMarketPrice > 3)) {
+                                document.getElementById('share-minimum').classList.remove('no-game')
+                                document.getElementById('share-minimum').classList.add('game')
+                                document.getElementById('share-minimum').innerHTML = `✓ $${chartData.regularMarketPrice} per share today / $${chartData.previousClose} per share previous close`
+                            } else {
+                                document.getElementById('share-minimum').classList.add('no-game')
+                                document.getElementById('share-minimum').classList.remove('game')
+                                document.getElementById('share-minimum').innerHTML = `🚫 $${chartData.regularMarketPrice} per share today / $${chartData.previousClose} per share previous close`
+                            }
+                        })
+                    })
+                })
+            }
+
+            fetch('https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v1/finance/trending/US?count=100&useQuotes=true', { 
+                headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+            })
+            .then((response) => response.json())
+            .then((response) => { 
+                var data = response.finance.result[0].quotes; 
+                var stocks = [];
+                let trendingProcessContinue;
+                trendingProcessContinue = true;
+                data.forEach((stock, index) => { 
+                    if (trendingProcessContinue && ((stock.fullExchangeName.startsWith("Nasdaq")) || (stock.fullExchangeName.startsWith("NYSE")))) {
+                        stocks.push(stock.symbol)
+                        if (stocks.length == 10) trendingProcessContinue = false
+                    }
+                })
+                stocks.forEach((stock, index) => {
+                    if (index == 0) {
+                        document.getElementById('trending').innerHTML = "Trending NASDAQ/NYSE stocks in the US: "
+                    } else {
+                        document.getElementById('trending').innerHTML = document.getElementById('trending').innerHTML + ' | '
+                    }
+
+                    document.getElementById('trending').innerHTML = document.getElementById('trending').innerHTML + `<a href="javascript:getStock('${stock}')">$${stock}</a>`
+                })
+
+                var stockToGet = stocks[Math.floor(Math.random()*stocks.length)];
+                getStock(stockToGet)
+            })
+        </script>
+    </body>
+</html>
