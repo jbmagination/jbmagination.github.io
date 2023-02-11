@@ -10,6 +10,12 @@
         * {
             font-family: Helvetica;
         }
+        .hidden {
+            visibility: hidden;
+        }
+        .removed {
+            display: none;
+        }
         .no-game {
             color: red;
         }
@@ -32,20 +38,22 @@
     </head>
     <body>
         <div id="stock-input">
-            <noscript>JavaScript is required</noscript>
             <div id="stock"></div>
         </div>
-        <br>
+        <hr class="hidden">
         <div id="stock-details">
             <div id="name"></div>
             <div id="error" class="no-game"></div>
+            <div id="smg-allowed"></div>
+            <br class="removed">
+            <noscript>JavaScript is required</noscript>
             <div id="exchange-name"></div>
             <div id="share-minimum"></div>
             <div id="share-minimum-previous"></div>
             <div id="market-cap"></div>
             <div id="links"></div>
         </div>
-        <br>
+        <hr class="hidden">
         <div id="smg-trending"></div>
         <div id="other-trending"></div>
         <script>
@@ -55,11 +63,13 @@
 
                 document.getElementById('name').innerHTML = ""
                 document.getElementById('error').innerHTML = ""
+                document.getElementById('smg-allowed').innerHTML = ""
                 document.getElementById('exchange-name').innerHTML = ""
                 document.getElementById('share-minimum').innerHTML = ""
                 document.getElementById('share-minimum-previous').innerHTML = ""
                 document.getElementById('market-cap').innerHTML = ""
                 document.getElementById('links').innerHTML = ""
+                Array.from(document.getElementsByTagName('br'))[0].classList.add('removed')
 
                 let data;
 
@@ -73,7 +83,9 @@
                     if (data == undefined) {
                         continueProgressing = false;
                         document.getElementById('error').innerHTML = "Error: Stock not found"
+                        Array.from(document.getElementsByTagName('br'))[0].classList.add('removed')
                         document.getElementById('name').innerHTML = ""
+                        document.getElementById('smg-allowed').innerHTML = ""
                         document.getElementById('exchange-name').innerHTML = ""
                         document.getElementById('share-minimum').innerHTML = ""
                         document.getElementById('share-minimum-previous').innerHTML = ""
@@ -85,7 +97,9 @@
                         continueProgressing = false;
                         console.error(`${data.quote.quoteType} found for stock ${data.quote.symbol}, expected EQUITY`)
                         document.getElementById('error').innerHTML = "Error: Cannot check non-equities"
+                        Array.from(document.getElementsByTagName('br'))[0].classList.add('removed')
                         document.getElementById('name').innerHTML = ""
+                        document.getElementById('smg-allowed').innerHTML = ""
                         document.getElementById('exchange-name').innerHTML = ""
                         document.getElementById('share-minimum').innerHTML = ""
                         document.getElementById('share-minimum-previous').innerHTML = ""
@@ -96,57 +110,84 @@
                     document.getElementById('error').innerHTML = ""
                 })
                 .then(() => {
-                    if (data.quote.longName) document.getElementById('name').innerHTML = `${data.quote.longName} (${data.quote.symbol})`;
-                    else document.getElementById('name').innerHTML = `${data.quote.symbol}`
-                    
-                    let gExtra;
-                    if (data.quote.fullExchangeName.startsWith('Nasdaq')) gExtra = ":NASDAQ"
-                    if (data.quote.fullExchangeName.startsWith('NYSE')) gExtra = ":NYSE"
-                    
-                    if (continueProgressing) {
-                        if ((data.quote.fullExchangeName.startsWith("Nasdaq") || (data.quote.fullExchangeName.startsWith("NYSE")))) {
-                            document.getElementById('exchange-name').classList.remove('no-game')
-                            document.getElementById('exchange-name').classList.add('game')
-                            document.getElementById('exchange-name').innerHTML = `✓ ${data.quote.fullExchangeName} (^${data.quote.exchange})`
-                            document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a> | <a href="http://g.co/finance/${stock}${gExtra}">Google Finance</a>`
-                        } else {
-                            document.getElementById('exchange-name').classList.add('no-game')
-                            document.getElementById('exchange-name').classList.remove('game')
-                            document.getElementById('exchange-name').innerHTML = `🚫 ${data.quote.fullExchangeName} (^${data.quote.exchange})`
-                            document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a>`
-                        }
-
-                        if ((data.quote.regularMarketPrice > 3)) {
-                            document.getElementById('share-minimum').classList.remove('no-game')
-                            document.getElementById('share-minimum').classList.add('game')
-                            document.getElementById('share-minimum').innerHTML = `✓ ${data.quote.regularMarketPrice} per share today`
-                        } else {
-                            document.getElementById('share-minimum').classList.add('no-game')
-                            document.getElementById('share-minimum').classList.remove('game')
-                            document.getElementById('share-minimum').innerHTML = `🚫 ${data.quote.regularMarketPrice} per share today`
-                        }
-
-                        if ((data.quote.regularMarketPreviousClose > 3)) {
-                            document.getElementById('share-minimum-previous').classList.remove('no-game')
-                            document.getElementById('share-minimum-previous').classList.add('game')
-                            document.getElementById('share-minimum-previous').innerHTML = `✓ ${data.quote.regularMarketPreviousClose} per share previous close`
-                        } else {
-                            document.getElementById('share-minimum-previous').classList.add('no-game')
-                            document.getElementById('share-minimum-previous').classList.remove('game')
-                            document.getElementById('share-minimum-previous').innerHTML = `🚫 ${data.quote.regularMarketPreviousClose} per share previous close`
-                        }
-
-                        if (data.quote.marketCap) {
-                            if (continueProgressing && (data.quote.marketCap > 25000000)) {
-                                document.getElementById('market-cap').classList.remove('no-game')
-                                document.getElementById('market-cap').classList.add('game')
-                                document.getElementById('market-cap').innerHTML = `✓ ${data.quote.marketCap.toLocaleString('en-US')} market cap`
+                    if (!(data == undefined)) {
+                        if (data.quote.longName) document.getElementById('name').innerHTML = `${data.quote.longName} (${data.quote.symbol})`;
+                        else document.getElementById('name').innerHTML = `${data.quote.symbol}`
+                        
+                        let gExtra;
+                        if (data.quote.fullExchangeName.startsWith('Nasdaq')) gExtra = "NASDAQ"
+                        if (data.quote.fullExchangeName.startsWith('NYSE')) gExtra = "NYSE"
+                        
+                        if (continueProgressing) {
+                            const NasdaqOrNYSE = (data.quote.fullExchangeName.startsWith("Nasdaq") || (data.quote.fullExchangeName.startsWith("NYSE")))
+                            if (NasdaqOrNYSE) {
+                                document.getElementById('exchange-name').classList.remove('no-game')
+                                document.getElementById('exchange-name').classList.add('game')
+                                document.getElementById('exchange-name').innerHTML = `✓ ${data.quote.fullExchangeName} (^${data.quote.exchange})`
+                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a> | <a href="http://g.co/finance/${stock}:${gExtra}">Google Finance</a>`
                             } else {
-                                document.getElementById('market-cap').classList.add('no-game')
-                                document.getElementById('market-cap').classList.remove('game')
-                                document.getElementById('market-cap').innerHTML = `🚫 ${data.quote.marketCap.toLocaleString('en-US')} market cap`
+                                document.getElementById('exchange-name').classList.add('no-game')
+                                document.getElementById('exchange-name').classList.remove('game')
+                                document.getElementById('exchange-name').innerHTML = `⃠ ${data.quote.fullExchangeName} (^${data.quote.exchange})`
+                                document.getElementById('links').innerHTML = `<a href="https://finance.yahoo.com/quote/${stock}">Yahoo! Finance</a>`
+                            }
+
+                            if ((data.quote.regularMarketPrice > 3)) {
+                                document.getElementById('share-minimum').classList.remove('no-game')
+                                document.getElementById('share-minimum').classList.add('game')
+                                document.getElementById('share-minimum').innerHTML = `✓ ${data.quote.regularMarketPrice} per share today`
+                            } else {
+                                document.getElementById('share-minimum').classList.add('no-game')
+                                document.getElementById('share-minimum').classList.remove('game')
+                                document.getElementById('share-minimum').innerHTML = `⃠ ${data.quote.regularMarketPrice} per share today`
+                            }
+
+                            if ((data.quote.regularMarketPreviousClose > 3)) {
+                                document.getElementById('share-minimum-previous').classList.remove('no-game')
+                                document.getElementById('share-minimum-previous').classList.add('game')
+                                document.getElementById('share-minimum-previous').innerHTML = `✓ ${data.quote.regularMarketPreviousClose} per share previous close`
+                            } else {
+                                document.getElementById('share-minimum-previous').classList.add('no-game')
+                                document.getElementById('share-minimum-previous').classList.remove('game')
+                                document.getElementById('share-minimum-previous').innerHTML = `⃠ ${data.quote.regularMarketPreviousClose} per share previous close`
+                            }
+
+                            if (data.quote.marketCap) {
+                                if (continueProgressing && (data.quote.marketCap > 25000000)) {
+                                    document.getElementById('market-cap').classList.remove('no-game')
+                                    document.getElementById('market-cap').classList.add('game')
+                                    document.getElementById('market-cap').innerHTML = `✓ ${data.quote.marketCap.toLocaleString('en-US')} market cap`
+                                } else {
+                                    document.getElementById('market-cap').classList.add('no-game')
+                                    document.getElementById('market-cap').classList.remove('game')
+                                    document.getElementById('market-cap').innerHTML = `⃠ ${data.quote.marketCap.toLocaleString('en-US')} market cap`
+                                }
+                            }
+
+                            if (NasdaqOrNYSE && (data.quote.regularMarketPrice > 3) && (data.quote.regularMarketPreviousClose > 3) && data.quote.marketCap && (data.quote.marketCap > 25000000)) {
+                                document.getElementById('smg-allowed').classList.remove('no-game')
+                                document.getElementById('smg-allowed').classList.add('game')
+                                document.getElementById('smg-allowed').innerHTML = `✓ Allowed in The Stock Market Game`
+                                Array.from(document.getElementsByTagName('br'))[0].classList.remove('removed')
+                            } else {
+                                document.getElementById('smg-allowed').classList.add('no-game')
+                                document.getElementById('smg-allowed').classList.remove('game')
+                                document.getElementById('smg-allowed').innerHTML = `⃠ Not allowed in The Stock Market Game`
+                                Array.from(document.getElementsByTagName('br'))[0].classList.remove('removed')
                             }
                         }
+                    } else {
+                        continueProgressing = false;
+                        document.getElementById('error').innerHTML = "Error: Stock not found"
+                        Array.from(document.getElementsByTagName('br'))[0].classList.add('removed')
+                        document.getElementById('name').innerHTML = ""
+                        document.getElementById('smg-allowed').innerHTML = ""
+                        document.getElementById('exchange-name').innerHTML = ""
+                        document.getElementById('share-minimum').innerHTML = ""
+                        document.getElementById('share-minimum-previous').innerHTML = ""
+                        document.getElementById('market-cap').innerHTML = ""
+                        document.getElementById('links').innerHTML = ""
+                        return
                     }
                 })
                 .catch((error) => {
@@ -168,64 +209,69 @@
                 let trendingProcessContinue;
                 trendingProcessContinue = true;
 
-                data.forEach((stock, index) => { 
-                    if (((stock.fullExchangeName.startsWith("Nasdaq")) || (stock.fullExchangeName.startsWith("NYSE")))) allStocks.push(stock.symbol)
+                data.forEach((stock, index) => {
+                    if (((stock.fullExchangeName.startsWith("Nasdaq")) || (stock.fullExchangeName.startsWith("NYSE"))) && stock.quoteType == "EQUITY") allStocks.push(stock.symbol)
                 })
 
-                allStocks.forEach((stock, index) => {
-                    if (trendingProcessContinue) {
-                        fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v7/finance/options/${stock}`, { 
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' } 
-                        })
-                        .then((response) => response.json())
-                        .then((response) => { data = response.optionChain.result[0] })
-                        .then(() => { 
-                            if (trendingProcessContinue && ((data.quote.fullExchangeName.startsWith("Nasdaq")) || (data.quote.fullExchangeName.startsWith("NYSE"))) && (data.quote.regularMarketPreviousClose > 3) && (data.quote.regularMarketPrice > 3) && (data.quote.marketCap > 25000000)) {
-                                stocks.push(stock)
-                                if ((stocks.length == 10) || (index == allStocks.length - 1)) {
-                                    trendingProcessContinue = false
+                allStocks.forEach((stock, index, array) => {
+                    fetch(`https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v7/finance/options/${stock}`, { 
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+                    })
+                    .then((response) => response.json())
+                    .then((response) => { data = response.optionChain.result[0] })
+                    .then(() => {
+                        if (trendingProcessContinue && ((data.quote.fullExchangeName.startsWith("Nasdaq")) || (data.quote.fullExchangeName.startsWith("NYSE"))) && (data.quote.regularMarketPreviousClose > 3) && (data.quote.regularMarketPrice > 3) && (data.quote.marketCap > 25000000)) {
+                            stocks.push(stock)
+                            if ((index == array.length - 1)) {
+                                allStocks.sort((a, b) => {
+                                    return a.length - b.length;
+                                });
+                                stocks.sort((a, b) => {
+                                    return a.length - b.length;
+                                });
 
-                                    stocks.forEach((stock, index) => {
-                                        if (index == 0) {
-                                            document.getElementById('smg-trending').innerHTML = "Trending SMG-allowed stocks in the US: "
-                                        } else {
-                                            document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + ' | '
-                                        }
+                                stocks.forEach((stock, index) => {
+                                    if (index == 0) {
+                                        document.getElementById('smg-trending').innerHTML = "SMG-allowed equities trending in the US: "
+                                    } else {
+                                        document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + ' | '
+                                    }
 
-                                        document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
-                                    })
+                                    document.getElementById('smg-trending').innerHTML = document.getElementById('smg-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
+                                })
 
-                                    otherStocks.forEach((stock, index) => {
-                                        if (index == 0) {
-                                            document.getElementById('other-trending').innerHTML = "Other trending (not SMG-allowed) stocks in the US: "
-                                        } else {
-                                            document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + ' | '
-                                        }
+                                otherStocks.forEach((stock, index) => {
+                                    if (index == 0) {
+                                        document.getElementById('other-trending').innerHTML = "Other NASDAQ/NYSE equities trending in the US (currently not SMG-allowed): "
+                                    } else {
+                                        document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + ' | '
+                                    }
 
-                                        document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
-                                    })
+                                    document.getElementById('other-trending').innerHTML = document.getElementById('other-trending').innerHTML + `<a href="javascript:getStock('${stock}')">${stock}</a>`
 
-                                    var stockToGet = stocks[Math.floor(Math.random()*stocks.length)];
-                                    getStock(stockToGet)
+                                    Array.from(document.getElementsByTagName('hr')).forEach((element) => { element.classList.remove('hidden') })
+                                })
 
-                                    document.getElementById('stock-input').innerHTML = `<input type="text" placeholder="Stock symbol/ticker" id="stock"><button type="button" id="checkStock" onclick="getStock(document.getElementById('stock').value)">Check stock</button>`
-                                    document.getElementById('stock').addEventListener("keypress", (event) => {
-                                        if (event.key === "Enter") {
-                                            event.preventDefault();
-                                            document.getElementById("checkStock").click();
-                                        }
-                                    })
-                                }
-                            } else {
-                                if (otherStocks.length < 10) otherStocks.push(stock)
+                                var stockToGet = stocks[Math.floor(Math.random()*stocks.length)];
+                                getStock(stockToGet)
+
+                                document.getElementById('stock-input').innerHTML = `<input type="text" placeholder="Stock symbol/ticker" id="stock"><button type="button" id="checkStock" onclick="getStock(document.getElementById('stock').value)">Check stock</button>`
+                                document.getElementById('stock').addEventListener("keypress", (event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        document.getElementById("checkStock").click();
+                                    }
+                                })
                             }
-                        })                        
-                        .catch((error) => {
-                            document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
-                            console.error(error)
-                        })
-                    }
-                })
+                        } else {
+                            if (otherStocks.length < 10) otherStocks.push(stock)
+                        }
+                    })    
+                    .catch((error) => {
+                        document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
+                        console.error(error)
+                    }) 
+                })                   
             })
             .catch((error) => {
                 document.getElementById('error').innerHTML = `Error: Something went wrong. Are you connected to the Internet? Can you access <a href="https://corsanywhere.herokuapp.com">this page</a>?`
