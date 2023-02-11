@@ -197,7 +197,7 @@
             }
 
             // Trending SMG-allowed stocks
-            fetch('https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v1/finance/trending/US?count=20&useQuotes=true', { 
+            fetch('https://corsanywhere.herokuapp.com/https://query1.finance.yahoo.com/v1/finance/trending/US?count=100&useQuotes=true', { 
                 headers: { 'X-Requested-With': 'XMLHttpRequest' } 
             })
             .then((response) => response.json())
@@ -221,7 +221,7 @@
                     .then((response) => { data = response.optionChain.result[0] })
                     .then(() => {
                         if (trendingProcessContinue && ((data.quote.fullExchangeName.startsWith("Nasdaq")) || (data.quote.fullExchangeName.startsWith("NYSE"))) && (data.quote.regularMarketPreviousClose > 3) && (data.quote.regularMarketPrice > 3) && (data.quote.marketCap > 25000000)) {
-                            stocks.push(stock)
+                            if (stocks.length < 10) stocks.push(stock)
                             if ((index == array.length - 1)) {
                                 allStocks.sort((a, b) => {
                                     return a.length - b.length;
