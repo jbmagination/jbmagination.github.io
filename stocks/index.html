@@ -223,11 +223,16 @@
                         if (trendingProcessContinue && ((data.quote.fullExchangeName.startsWith("Nasdaq")) || (data.quote.fullExchangeName.startsWith("NYSE"))) && (data.quote.regularMarketPreviousClose > 3) && (data.quote.regularMarketPrice > 3) && (data.quote.marketCap > 25000000)) {
                             if (stocks.length < 10) stocks.push(stock)
                             if ((index == array.length - 1)) {
-                                allStocks.sort((a, b) => {
-                                    return a.length - b.length;
+                                allStocks = allStocks.sort((a, b) => {
+                                    if (a < b) return -1;
+                                    if (a > b) return 1;
+                                    return 0;
                                 });
-                                stocks.sort((a, b) => {
-                                    return a.length - b.length;
+
+                                stocks = stocks.sort((a, b) => {
+                                    if (a < b) return -1;
+                                    if (a > b) return 1;
+                                    return 0;
                                 });
 
                                 stocks.forEach((stock, index) => {
