@@ -1,29 +1,75 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Home | JBMagination</title>
-    <link href="style.css" type="text/css" rel="stylesheet" />
-    <!--[if lt IE 9]>
-    <script src="html5shiv.js">
-    <![endif]--->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <title>i make stuff</title>
     <link rel="me" href="https://mastodon.social/@jbmagination" />
     <link rel="me" href="https://mastodon.social/@JBMagination2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      * {
+        font-family: Helvetica;
+      }
+      body {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      a {
+        color: rgb(0, 64, 255);
+        text-decoration: none;
+        position: relative;
+        transition: color 0.25s;
+      }
+      a:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        border-bottom: 2px solid rgb(0, 128, 255);
+        transition: 0.4s;
+      }
+      a:hover:after {
+        width: 100%;
+        color: rgb(0, 128, 255);
+      }
+      a:hover {
+        color: rgb(0, 128, 255);
+      }
+      @media (prefers-color-scheme: dark) {
+       a {
+          color: rgb(0, 128, 255);
+          text-decoration: none;
+          position: relative;
+          transition: color 0.25s;
+        }
+        a:after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0%;
+          border-bottom: 2px solid rgb(78, 166, 255);
+          transition: 0.4s;
+        }
+        a:hover:after {
+          width: 100%;
+          color: rgb(78, 166, 255);
+        }
+        a:hover {
+          color: rgb(78, 166, 255); 
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>Hi! I'm JBM.</h1>
-    <h2><a href="mailto:business@jbmagination.com">business inquiries? (also hey Spotify!)</a></h2>
-    <br />
-    <h3>About Me</h3>
-    <ul>
-      <li>I go by she/her</li>
-      <li>I'm <span data-toggle="tooltip" title="Specifically, I have autism and ADHD!">neurodivergent</span> ♾️</li>
-      <li>I'm a pansexual 🏳️‍🌈</li>
-      <li>I make music</li>
-    </ul>
-    <p>Not much else you need to know right now!</p> 
-    <footer style="height:auto; background-color:#f7f7f7">
-      <h1 style="color:black; padding:40px; margin:0; text-align:center;">💚</h1>
-    </footer>
+    <h1><u><i>i make stuff</i></u></h1>
+    <h2>i make <a href="https://music.jbmagination.com">music</a> and other stuff too but i'm too lazy to make the other pages at 1:50am, check back tomorrow</h2>
+    <p style="font-size:50%"><a href="mailto:business@jbmagination.com">business inquiries</h2>
   </body>
 </html>
