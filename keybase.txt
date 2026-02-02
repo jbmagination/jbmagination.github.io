@@ -54,3 +54,60 @@ appending to this document.
 View my publicly-auditable identity here: https://keybase.io/jbmagination
 
 ==================================================================
+
+==================================================================
+https://keybase.io/suprstarrd
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://jbmagination.com
+  * I am suprstarrd (https://keybase.io/suprstarrd) on keybase.
+  * I have a public key ASAjmmu8nAZOmflts7ik9OxbllqRPlSGtGDpdOxG5kQVLAo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120239a6bbc9c064e99f96db3b8a4f4ec5b965a913e5486b460e974ec46e644152c0a",
+      "host": "keybase.io",
+      "kid": "0120239a6bbc9c064e99f96db3b8a4f4ec5b965a913e5486b460e974ec46e644152c0a",
+      "uid": "f87af5014d9b1fe0d9d734675c729b19",
+      "username": "suprstarrd"
+    },
+    "merkle_root": {
+      "ctime": 1769992746,
+      "hash": "2a3fa727786e6e69dc3c723365e803ac452b6ad771c4ed89981d43e41ce708cf6a18f36c9e48d1d730f6ba946af97edfebfe3150b14f2996d6fc624201b152fd",
+      "hash_meta": "3dd1507bee5b233adfcffbb66202bbd8357f81a3649072d0ad899a1b34cab3c8",
+      "seqno": 27381611
+    },
+    "service": {
+      "entropy": "88yPN/n2DU1Noa1bYxVxTwGH",
+      "hostname": "jbmagination.com",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "6.5.4"
+  },
+  "ctime": 1769992902,
+  "expire_in": 504576000,
+  "prev": "2936fee1526b422fbcbaa43db991fffe74fba09d533ff39c2eb12681f8f46e92",
+  "seqno": 4,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgI5prvJwGTpn5bbO4pPTsW5ZakT5UhrRg6XTsRuZEFSwKp3BheWxvYWTESpcCBMQgKTb+4VJrQi+8uqQ9uZH//nT7oJ1TP/OcLrEmgfj0bpLEIG4z+mWi6rDkbhHsFDFyJOYNfV9+6MgMjJ3GeUbgPWCgAgHCo3NpZ8RA/ZpvcwgVR6dshefIyanMANct4BgOBcXkJeb1l/3irXZ8N0PT7LUYqxIMk88DTl+jizt6/4u/kmrmxnFywmCmDqhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIPCZTgDB7htZrcgAWFKIzBTdSnmZ07alSyT0FSr6Mipio3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/suprstarrd
+
+==================================================================
